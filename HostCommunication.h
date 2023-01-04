@@ -1,0 +1,6 @@
+#ifndef __HOSTCOMMUNICATION_H
+#define __HOSTCOMMUNICATION_H
+
+
+
+#endif // __HOSTCOMMUNICATION_H
