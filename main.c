@@ -31,15 +31,13 @@ void print_hc_status()
 int main()
 {
 	bool exitflag = false;
-	HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
+	// HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
 	uint16_t ch;
 	// char strbuffer[512];
 
 	// SetConsoleTextAttribute
 	// https://learn.microsoft.com/zh-cn/windows/console/setconsoletextattribute
 	// printf("\x1b[31m" "Color Char Test\n" "\x1b[0m");
-
-	// #define print_hc_status() printf("%s\n", HostCommunicationStatus2str(strbuffer, p_hc_status))
 
 	HC_Status_Init();
 
@@ -53,14 +51,7 @@ int main()
 		{
 			HC_GotCharHandle(ch);
 			HC_ResponseCheckHandle();
-			if(HC_CommandWaitToExecute())
-			{
-				print_hc_status();
-				// int cmdcode = p_hc_status->cmdbuff[0];
-				int cmdcode = HC_Status()->cmdbuff[0];
-				printf(ANSI_COLOR_FG_GREEN "Command: %s(%d)\n" ANSI_COLOR_RESET, hc_getCommandString(cmdcode), cmdcode);
-				HC_CommandFinishHandle();
-			}
+			HC_CheckAndExecuteHandle();
 			HC_TimeOutCheckHandle();
 		}
 		else
@@ -73,9 +64,30 @@ int main()
 	return 0;
 }
 
+void HC_SendACKHook(uint16_t errcode)
+{
+	printf(ANSI_COLOR_FG_GREEN "ACK" ANSI_COLOR_RESET "\terrcode=%d\n", errcode);
+	return;
+}
+
+void HC_SendNAKHook(uint16_t errcode)
+{
+	printf(ANSI_COLOR_FG_RED "NAK" ANSI_COLOR_RESET " %#02x\terrcode=%d\n", (uint8_t)errcode, errcode);
+	return;
+}
+
 void HC_ErrorProcessHook(HostCommunicationStatus_t *const p_hc_status)
 {
 	char strbuffer[512];
 	print_hc_status();
 	printf(ANSI_COLOR_FG_RED "***Error***: %s\n" ANSI_COLOR_RESET, hc_getErrorCodeString(p_hc_status->errcode));
+}
+
+void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
+{
+	print_hc_status();
+	int cmdcode = p_hc_status->cmdbuff[0];
+	printf(ANSI_COLOR_FG_GREEN "Command: %s(%d)\n" ANSI_COLOR_RESET, hc_getCommandString(cmdcode), cmdcode);
+	HC_CommandFinishHandle();
+	return;
 }

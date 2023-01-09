@@ -31,9 +31,10 @@ void HC_Status_Init()
 void HC_HandShakeStatus_Reset()
 {
 	hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
-	hc_status.bytes_remain = 0;
+	// hc_status.bytes_remain = 0;
 	// hc_status.cmdbuff_idx = 0;
 	hc_status.errcode = HC_ErrCode_NoError;
+	// TODO: __handshake_error
 	return;
 }
 
@@ -42,11 +43,11 @@ const HostCommunicationStatus_t *HC_Status()
 	return &hc_status;
 }
 
-bool HC_CommandWaitToExecute()
-{
-	return (hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC);
-	// return (hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_ACK || hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC;
-}
+// bool HC_CommandWaitToExecute()
+// {
+// 	return (hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC);
+// 	// return (hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_ACK || hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC;
+// }
 
 // 检测连续的CAN序列
 bool hc_cancel_test(uint8_t ch)
@@ -68,7 +69,7 @@ bool hc_cancel_test(uint8_t ch)
 #define __handshake_error(next_status, errorcode) \
 	hc_status.handshake_status = next_status;     \
 	hc_status.errcode          = errorcode;
-
+// TODO: 转换为这个形式
 
 void HC_GotCharHandle(uint8_t ch)
 {
@@ -90,7 +91,10 @@ void HC_GotCharHandle(uint8_t ch)
 		if (ch == ASCII_ENQ) // 仅识别ENQ
 		{
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_GET_CMD;
+
+			// 这两个参数运行中唯一一处重置，不要轻易修改
 			hc_status.cmdbuff_idx = 0;
+			hc_status.bytes_remain = 0;
 		}
 		// 剩下的字符都忽略
 		break;
@@ -103,6 +107,7 @@ void HC_GotCharHandle(uint8_t ch)
 		// 此处是各命令的处理
 		case HC_CMD_StartSample:
 		case HC_CMD_StopSample:
+			// FIX: 采样中不应允许其他命令，应该专门进一个状态
 			if (hc_status.function_status == HC_FUNCTION_STATUS_STANDBY)
 			{
 				hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_ACK;
@@ -112,7 +117,6 @@ void HC_GotCharHandle(uint8_t ch)
 				hc_status.errcode = HC_ErrCode_ModeError;
 				hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
-			// hc_status.bytes_remain = 0;
 			break;
 		case HC_CMD_SwitchReadStorageMode:
 			switch (hc_status.function_status)
@@ -130,7 +134,6 @@ void HC_GotCharHandle(uint8_t ch)
 				hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 				break;
 			}
-			// hc_status.bytes_remain = 0;
 			break;
 		case HC_CMD_Specify4kSector:
 			if (hc_status.function_status == HC_FUNCTION_STATUS_STORAGE_EXPORT)
@@ -154,7 +157,6 @@ void HC_GotCharHandle(uint8_t ch)
 				hc_status.errcode = HC_ErrCode_ModeError;
 				hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
-			// hc_status.bytes_remain = 0;
 			break;
 		default:
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
@@ -219,18 +221,26 @@ void HC_CommandFinishHandle()
 // 	return;
 // }
 
-// 检查状态并回复上位机
 void HC_ResponseCheckHandle()
 {
-	// 检查错误代码
 	printf(ANSI_COLOR_FG_BRIGHT_GRAY "HC_ResponseCheckHandle()\r\n" ANSI_COLOR_RESET);
 
 	switch (hc_status.handshake_status)
 	{
+	// 握手完成，回复上位机ACK
 	case HC_HANDSHAKE_STATUS_WAIT_ACK:
 		HC_SendACKHook(hc_status.errcode);
 		hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_EXEC;
 		break;
+
+	// 上一次握手完成还未执行，新的命令就发送进来，此时应回复忙错误
+	case HC_HANDSHAKE_STATUS_WAIT_EXEC:
+		HC_SendNAKHook(hc_status.errcode);
+		HC_ErrorProcessHook(&hc_status);
+		hc_status.errcode = HC_ErrCode_NoError;
+		break;
+
+	// 握手中出现错误，回复上位机NAK
 	case HC_HANDSHAKE_STATUS_ON_ERROR:
 		HC_SendNAKHook(hc_status.errcode);
 		HC_ErrorProcessHook(&hc_status);
@@ -243,11 +253,19 @@ void HC_ResponseCheckHandle()
 
 void HC_TimeOutCheckHandle()
 {
-	// 检查是否超时，超时则应复位
-	printf(ANSI_COLOR_FG_BRIGHT_GRAY "HC_TimeOutCheckHandle()\r\n" ANSI_COLOR_RESET);	// TODO
+	printf(ANSI_COLOR_FG_BRIGHT_GRAY "HC_TimeOutCheckHandle()\r\n" ANSI_COLOR_RESET);
+	// TODO: 尚未完成
 	return;
 }
 
+void HC_CheckAndExecuteHandle()
+{
+	if ((hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC))
+	{
+		HC_ExecuteHook(&hc_status);
+	}
+	return;
+}
 
 void __weak HC_SendACKHook(uint16_t errcode)
 {
@@ -257,12 +275,16 @@ void __weak HC_SendACKHook(uint16_t errcode)
 
 void __weak HC_SendNAKHook(uint16_t errcode)
 {
-	// FIX: 错误代码应该只有1个字节！
-	printf("NAK %#x\terrcode=%d\n", errcode, errcode);
+	printf("NAK %#2x\terrcode=%d\n", errcode, errcode);
 	return;
 }
 
 void __weak HC_ErrorProcessHook(HostCommunicationStatus_t *const p_hc_status)
+{
+	return;
+}
+
+void __weak HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
 {
 	return;
 }
