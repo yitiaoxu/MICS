@@ -24,14 +24,14 @@ void print_hc_status()
 	HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
 	printf("%s\n", HostCommunicationStatus2str(strbuffer, p_hc_status));
 	printf(ANSI_COLOR_FG_BRIGHT_BLACK);
-	print_array_by_byte(p_hc_status->cmdbuff, HC_CMDBUFF_SIZE);
+	print_array_by_byte((void *)(p_hc_status->cmdbuff), HC_CMDBUFF_SIZE);
 	printf(ANSI_COLOR_RESET "\n");
 }
 
 int main()
 {
 	bool exitflag = false;
-	// HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
+	HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
 	uint16_t ch;
 	// char strbuffer[512];
 
@@ -49,7 +49,13 @@ int main()
 		// printf("Got: %d",ch);
 		if (ch < UINT8_MAX)
 		{
-			HC_GotCharHandle(ch);
+			bool change;
+			change = HC_GotCharHandle(ch);
+			// printf("change = %d\n", change);
+			if ((p_hc_status->handshake_status == HC_HANDSHAKE_STATUS_WAIT_ACK) ||
+				(p_hc_status->handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC) ||
+				(p_hc_status->handshake_status == HC_HANDSHAKE_STATUS_ON_ERROR))
+				print_hc_status();
 			HC_ResponseCheckHandle();
 			HC_CheckAndExecuteHandle();
 			HC_TimeOutCheckHandle();
@@ -62,32 +68,4 @@ int main()
 	} while (!exitflag);
 
 	return 0;
-}
-
-void HC_SendACKHook(uint16_t errcode)
-{
-	printf(ANSI_COLOR_FG_GREEN "ACK" ANSI_COLOR_RESET "\terrcode=%d\n", errcode);
-	return;
-}
-
-void HC_SendNAKHook(uint16_t errcode)
-{
-	printf(ANSI_COLOR_FG_RED "NAK" ANSI_COLOR_RESET " %#02x\terrcode=%d\n", (uint8_t)errcode, errcode);
-	return;
-}
-
-void HC_ErrorProcessHook(HostCommunicationStatus_t *const p_hc_status)
-{
-	char strbuffer[512];
-	print_hc_status();
-	printf(ANSI_COLOR_FG_RED "***Error***: %s\n" ANSI_COLOR_RESET, hc_getErrorCodeString(p_hc_status->errcode));
-}
-
-void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
-{
-	print_hc_status();
-	int cmdcode = p_hc_status->cmdbuff[0];
-	printf(ANSI_COLOR_FG_GREEN "Command: %s(%d)\n" ANSI_COLOR_RESET, hc_getCommandString(cmdcode), cmdcode);
-	HC_CommandFinishHandle();
-	return;
 }

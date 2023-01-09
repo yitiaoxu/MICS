@@ -27,7 +27,7 @@ extern "C" {
 #define HC_FUNCTION_STATUS_STANDBY			0		// 就绪
 #define HC_FUNCTION_STATUS_STORAGE_EXPORT	10		// 导出数据
 
-typedef struct _HC_Status_t
+typedef volatile struct _HC_Status_t
 {
 	uint16_t handshake_status;			// 握手状态
 	uint16_t function_status;			// 功能状态
@@ -40,7 +40,7 @@ typedef struct _HC_Status_t
 } HostCommunicationStatus_t;
 
 void HC_Status_Init(void);
-void HC_HandShakeStatus_Reset(void);
+// void HC_HandShakeStatus_Reset(void);
 
 /// @brief 取得hc_status的只读指针
 /// @return &hc_status
@@ -53,7 +53,8 @@ const HostCommunicationStatus_t *HC_Status(void);
 
 /// @brief 串口得到的字符送入状态机驱动状态转移
 /// @param ch 送入状态机的字符
-void HC_GotCharHandle(uint8_t ch);
+/// @return 状态是否改变
+bool HC_GotCharHandle(uint8_t ch);
 
 /// @brief 命令执行完毕后将握手状态机复位，以便接受下一条命令
 void HC_CommandFinishHandle(void);

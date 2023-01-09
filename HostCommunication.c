@@ -11,30 +11,47 @@
 #include "HostCommunicationErrorCode.h"
 
 
-#define __weak __attribute__((weak))
+#ifndef   __WEAK
+  #define __WEAK                                 __attribute__((weak))
+#endif
+#ifndef   __STATIC_FORCEINLINE
+  #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static __inline
+#endif
+
+#ifdef __ANSICOLORCONSOLE_H
+#define FUNCTION_ENTRY_INFO(_info)	printf(ANSI_COLOR_FG_BRIGHT_GRAY _info ANSI_COLOR_RESET)
+#else
+#define FUNCTION_ENTRY_INFO(_info)	printf(_info)
+#endif
 
 static HostCommunicationStatus_t hc_status;
 
+/// @brief 同时改变握手状态和错误代码
+/// @param next_handshake_status 送入'hc_status.handshake_status'的值
+/// @param next_errorcode 送入'hc_status.errcode'的值
+__STATIC_FORCEINLINE void _hc_handshake_error(uint16_t next_handshake_status, uint16_t next_errorcode)
+{
+	// TODO: 是否要考虑开关中断？
+	hc_status.errcode          = next_errorcode;
+	hc_status.handshake_status = next_handshake_status;
+	return;
+}
 
 void HC_Status_Init()
 {
 	hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
 	hc_status.function_status = HC_FUNCTION_STATUS_STANDBY;
-	// hc_status.command_status = HC_COMMAND_STATUS_NULL;
 	hc_status.bytes_remain = 0;
 	hc_status.can_count = 0;
 	hc_status.cmdbuff_idx = 0;
 	hc_status.errcode = HC_ErrCode_NoError;
+	// printf("_hc_handshake_error = %#tx", &_hc_handshake_error);
 	return;
 }
 
-void HC_HandShakeStatus_Reset()
+__STATIC_FORCEINLINE void hc_HandShakeStatus_Reset()
 {
-	hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
-	// hc_status.bytes_remain = 0;
-	// hc_status.cmdbuff_idx = 0;
-	hc_status.errcode = HC_ErrCode_NoError;
-	// TODO: __handshake_error
+	_hc_handshake_error(HC_HANDSHAKE_STATUS_IDLE, HC_ErrCode_NoError);
 	return;
 }
 
@@ -57,22 +74,18 @@ bool hc_cancel_test(uint8_t ch)
 	else
 		hc_status.can_count = 0;
 
-#ifdef __HC_DEBUG
+	#ifdef __HC_DEBUG
 	if (hc_status.can_count)
 		printf("第%d个CAN\n", hc_status.can_count);
-#endif
+	#endif
 
 	return (bool)(hc_status.can_count >= HC_STATUS_RESET_BY_CAN_NUM);
 }
 
 
-#define __handshake_error(next_status, errorcode) \
-	hc_status.handshake_status = next_status;     \
-	hc_status.errcode          = errorcode;
-// TODO: 转换为这个形式
-
-void HC_GotCharHandle(uint8_t ch)
+bool HC_GotCharHandle(uint8_t ch)
 {
+	bool change = true;
 	// uint8_t err;
 	// 连续8次输入CAN则复位
 	if (hc_cancel_test(ch))
@@ -80,8 +93,8 @@ void HC_GotCharHandle(uint8_t ch)
 		HC_Status_Init();
 		#ifdef __HC_DEBUG
 		printf("因CAN达到8次而状态复位\n");
-		#endif
-		return;
+		#endif // __HC_DEBUG
+		return change;
 	}
 
 	switch (hc_status.handshake_status) // 根据当前状态处理握手
@@ -96,7 +109,10 @@ void HC_GotCharHandle(uint8_t ch)
 			hc_status.cmdbuff_idx = 0;
 			hc_status.bytes_remain = 0;
 		}
-		// 剩下的字符都忽略
+		else // 剩下的字符都忽略
+		{
+			change = false;
+		}
 		break;
 	}
 	case HC_HANDSHAKE_STATUS_GET_CMD:
@@ -114,8 +130,9 @@ void HC_GotCharHandle(uint8_t ch)
 			}
 			else
 			{
-				hc_status.errcode = HC_ErrCode_ModeError;
-				hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
+				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
+				// hc_status.errcode = HC_ErrCode_ModeError;
+				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
 			break;
 		case HC_CMD_SwitchReadStorageMode:
@@ -130,8 +147,9 @@ void HC_GotCharHandle(uint8_t ch)
 				hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
 				break;
 			default:
-				hc_status.errcode = HC_ErrCode_ModeError;
-				hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
+				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
+				// hc_status.errcode = HC_ErrCode_ModeError;
+				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 				break;
 			}
 			break;
@@ -143,8 +161,9 @@ void HC_GotCharHandle(uint8_t ch)
 			}
 			else
 			{
-				hc_status.errcode = HC_ErrCode_ModeError;
-				hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
+				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
+				// hc_status.errcode = HC_ErrCode_ModeError;
+				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
 			break;
 		case HC_CMD_Output4kSector:
@@ -154,13 +173,15 @@ void HC_GotCharHandle(uint8_t ch)
 			}
 			else
 			{
-				hc_status.errcode = HC_ErrCode_ModeError;
-				hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
+				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
+				// hc_status.errcode = HC_ErrCode_ModeError;
+				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
 			break;
 		default:
-			hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
-			hc_status.errcode = HC_ErrCode_UnknownCmd;
+			_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnknownCmd);
+			// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
+			// hc_status.errcode = HC_ErrCode_UnknownCmd;
 			break;
 		}
 		break;
@@ -191,25 +212,29 @@ void HC_GotCharHandle(uint8_t ch)
 		{
 			hc_status.errcode = HC_ErrCode_Busy;
 		}
-		// 剩下的字符都忽略
+		else // 剩下的字符都忽略
+		{
+			change = false;
+		}
 		break;
 	}
 	default:
 	{
+		_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnexpectedStatus);
 		// hc_status.errcode = HC_ErrCode_UnexpectedStatus;
 		// hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
-		__handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnexpectedStatus);
+		// __handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnexpectedStatus);
 	}
 	}
 
-	return;
+	return change;
 }
 
 void HC_CommandFinishHandle()
 {
 	// 无论是否执行成功，命令执行完成后使用这个函数把hc_status.handshake_status
 	// 设为HC_HANDSHAKE_STATUS_IDLE，否则会无法接收新的命令。
-	HC_HandShakeStatus_Reset();
+	hc_HandShakeStatus_Reset();
 }
 
 
@@ -223,7 +248,7 @@ void HC_CommandFinishHandle()
 
 void HC_ResponseCheckHandle()
 {
-	printf(ANSI_COLOR_FG_BRIGHT_GRAY "HC_ResponseCheckHandle()\r\n" ANSI_COLOR_RESET);
+	FUNCTION_ENTRY_INFO("HC_ResponseCheckHandle()\r\n");
 
 	switch (hc_status.handshake_status)
 	{
@@ -241,6 +266,8 @@ void HC_ResponseCheckHandle()
 		break;
 
 	// 握手中出现错误，回复上位机NAK
+	// 'HC_HANDSHAKE_STATUS_ON_ERROR'状态在'HC_ResponseCheckHandle()'中即变回'HC_HANDSHAKE_STATUS_IDLE'，
+	// 因此不需要像'HC_HANDSHAKE_STATUS_WAIT_EXEC'一样使用两个状态表示
 	case HC_HANDSHAKE_STATUS_ON_ERROR:
 		HC_SendNAKHook(hc_status.errcode);
 		HC_ErrorProcessHook(&hc_status);
@@ -253,7 +280,7 @@ void HC_ResponseCheckHandle()
 
 void HC_TimeOutCheckHandle()
 {
-	printf(ANSI_COLOR_FG_BRIGHT_GRAY "HC_TimeOutCheckHandle()\r\n" ANSI_COLOR_RESET);
+	FUNCTION_ENTRY_INFO("HC_TimeOutCheckHandle()\r\n");
 	// TODO: 尚未完成
 	return;
 }
@@ -267,24 +294,28 @@ void HC_CheckAndExecuteHandle()
 	return;
 }
 
-void __weak HC_SendACKHook(uint16_t errcode)
+__WEAK void HC_SendACKHook(uint16_t errcode)
 {
+	#ifdef __HC_DEBUG
 	printf("ACK\terrcode=%d\n", errcode);
+	#endif // __HC_DEBUG
 	return;
 }
 
-void __weak HC_SendNAKHook(uint16_t errcode)
+__WEAK void HC_SendNAKHook(uint16_t errcode)
 {
+	#ifdef __HC_DEBUG
 	printf("NAK %#2x\terrcode=%d\n", errcode, errcode);
+	#endif // __HC_DEBUG
 	return;
 }
 
-void __weak HC_ErrorProcessHook(HostCommunicationStatus_t *const p_hc_status)
+__WEAK void HC_ErrorProcessHook(HostCommunicationStatus_t *const p_hc_status)
 {
 	return;
 }
 
-void __weak HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
+__WEAK void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
 {
 	return;
 }
