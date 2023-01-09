@@ -136,8 +136,6 @@ bool HC_GotCharHandle(uint8_t ch)
 			else
 			{
 				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
-				// hc_status.errcode = HC_ErrCode_ModeError;
-				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
 			break;
 		case HC_CMD_SwitchReadStorageMode:
@@ -153,8 +151,6 @@ bool HC_GotCharHandle(uint8_t ch)
 				break;
 			default:
 				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
-				// hc_status.errcode = HC_ErrCode_ModeError;
-				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 				break;
 			}
 			break;
@@ -167,8 +163,6 @@ bool HC_GotCharHandle(uint8_t ch)
 			else
 			{
 				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
-				// hc_status.errcode = HC_ErrCode_ModeError;
-				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
 			break;
 		case HC_CMD_Output4kSector:
@@ -179,14 +173,10 @@ bool HC_GotCharHandle(uint8_t ch)
 			else
 			{
 				_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_ModeError);
-				// hc_status.errcode = HC_ErrCode_ModeError;
-				// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
 			}
 			break;
 		default:
 			_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnknownCmd);
-			// hc_status.handshake_status = HC_HANDSHAKE_STATUS_ON_ERROR;
-			// hc_status.errcode = HC_ErrCode_UnknownCmd;
 			break;
 		}
 		break;
@@ -233,9 +223,6 @@ bool HC_GotCharHandle(uint8_t ch)
 	default:
 	{
 		_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnexpectedStatus);
-		// hc_status.errcode = HC_ErrCode_UnexpectedStatus;
-		// hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
-		// __handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnexpectedStatus);
 	}
 	}
 

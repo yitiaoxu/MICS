@@ -1,32 +1,14 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <errno.h>
-#include <Windows.h>
+// #include <errno.h>
+// #include <Windows.h>
 
 #include "ansicolorconsole.h"
 
 #include "HostCommunication.h"
 #include "HostCommunicationUtils.h"
 
-
-static void print_array_by_byte(const void *arr, unsigned int len)
-{
-	for (const unsigned char *p = (const unsigned char *)arr; p < (const unsigned char *)arr + len; p++)
-	{
-		printf("%02x ", *p);
-	}
-}
-
-void print_hc_status()
-{
-	char strbuffer[512];
-	HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
-	printf("%s\n", HostCommunicationStatus2str(strbuffer, p_hc_status));
-	printf(ANSI_COLOR_FG_BRIGHT_BLACK);
-	print_array_by_byte((void *)(p_hc_status->cmdbuff), HC_CMDBUFF_SIZE);
-	printf(ANSI_COLOR_RESET "\n");
-}
 
 int main()
 {

@@ -10,7 +10,6 @@
 #include "HostCommunicationErrorCode.h"
 
 // #define STR(x) #x
-// #define ENUM(x) ANSI_COLOR_FG_BLUE #x ANSI_COLOR_RESET
 #define ENUM_COLOR_STR(x) ANSI_COLOR_FG_BLUE #x ANSI_COLOR_RESET
 
 const char *hc_getHandshakeStatusString(int status)
@@ -30,7 +29,7 @@ const char *hc_getHandshakeStatusString(int status)
 	case HC_HANDSHAKE_STATUS_ON_ERROR:
 		return ENUM_COLOR_STR(HC_HANDSHAKE_STATUS_ON_ERROR);
 	default:
-		return ANSI_COLOR_FG_RED "<InvalidHandshakeStatusCode>" ANSI_COLOR_RESET;
+		return (ANSI_COLOR_FG_RED "<InvalidHandshakeStatusCode>" ANSI_COLOR_RESET);
 	}
 }
 
@@ -43,7 +42,7 @@ const char *hc_getFunctionStatusString(int status)
 	case HC_FUNCTION_STATUS_STORAGE_EXPORT:
 		return ENUM_COLOR_STR(HC_FUNCTION_STATUS_STORAGE_EXPORT);
 	default:
-		return ANSI_COLOR_FG_RED "<InvalidHandshakeStatusCode>" ANSI_COLOR_RESET;
+		return (ANSI_COLOR_FG_RED "<InvalidHandshakeStatusCode>" ANSI_COLOR_RESET);
 	}
 }
 
@@ -62,7 +61,7 @@ const char *hc_getErrorCodeString(int errcode)
 	case HC_ErrCode_ModeError:
 		return ENUM_COLOR_STR(HC_ErrCode_ModeError);
 	default:
-		return ANSI_COLOR_FG_RED "<InvalidErrCode>" ANSI_COLOR_RESET;
+		return (ANSI_COLOR_FG_RED "<InvalidErrCode>" ANSI_COLOR_RESET);
 	}
 }
 
@@ -83,30 +82,41 @@ const char *hc_getCommandString(int cmd)
 		return ENUM_COLOR_STR(HC_CMD_Output4kSector);
 
 	default:
-		return ANSI_COLOR_FG_RED "<InvalidCommandCode>" ANSI_COLOR_RESET;
+		return (ANSI_COLOR_FG_RED "<InvalidCommandCode>" ANSI_COLOR_RESET);
 	}
 }
 
 char *HostCommunicationStatus2str(char *const buffer, const HostCommunicationStatus_t *const p_hc_status)
 {
-	// const char *hsss, *fss, *ecs;
-	// hsss = hc_getHandshakeStatusString(p_hc_status->handshake_status);
-	// fss = hc_getFunctionStatusString(p_hc_status->function_status);
-	// ecs = hc_getErrorCodeString(p_hc_status->errcode);
 	sprintf(
 		buffer,
 		ANSI_COLOR_FG_MAGENTA "HostCommunicationStatus" ANSI_COLOR_RESET "(handshake_status = %s(%d), function_status = %s(%d), bytes_remain = %d, can_count = %d, cmdbuff_idx = %d, errcode = %s(%#x))",
 		hc_getHandshakeStatusString(p_hc_status->handshake_status), p_hc_status->handshake_status,
-		// hsss, p_hc_status->handshake_status,
 		hc_getFunctionStatusString(p_hc_status->function_status), p_hc_status->function_status,
-		// fss, p_hc_status->function_status,
 		p_hc_status->bytes_remain, p_hc_status->can_count, p_hc_status->cmdbuff_idx,
 		hc_getErrorCodeString(p_hc_status->errcode), p_hc_status->errcode
-		// ecs, p_hc_status->errcode
 	);
 	return buffer;
 }
 
+
+static void print_array_by_byte(const void *arr, unsigned int len)
+{
+	for (const unsigned char *p = (const unsigned char *)arr; p < (const unsigned char *)arr + len; p++)
+	{
+		printf("%02x ", *p);
+	}
+}
+
+void print_hc_status()
+{
+	char strbuffer[512];
+	HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
+	printf("%s\n", HostCommunicationStatus2str(strbuffer, p_hc_status));
+	printf(ANSI_COLOR_FG_BRIGHT_BLACK);
+	print_array_by_byte((void *)(p_hc_status->cmdbuff), HC_CMDBUFF_SIZE);
+	printf(ANSI_COLOR_RESET "\n");
+}
 
 /*
 int main()

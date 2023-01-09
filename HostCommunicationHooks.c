@@ -6,8 +6,6 @@
 #include "HostCommunication.h"
 #include "HostCommunicationUtils.h"
 
-extern void print_hc_status(void);
-
 void HC_SendACKHook(uint16_t errcode)
 {
 	printf(ANSI_COLOR_FG_GREEN "ACK" ANSI_COLOR_RESET "\terrcode=%d\n", errcode);

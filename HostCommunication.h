@@ -31,7 +31,6 @@ typedef volatile struct _HC_Status_t
 {
 	uint16_t handshake_status;			// 握手状态
 	uint16_t function_status;			// 功能状态
-	// uint16_t command_status;			// 指令状态
 	uint16_t bytes_remain;				// 剩余参数
 	uint16_t can_count;					// CAN字符计数
 	uint16_t cmdbuff_idx;				// 命令缓存头指针

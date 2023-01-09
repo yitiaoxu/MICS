@@ -1,6 +1,8 @@
 #ifndef __ANSICOLORCONSOLE_H
 #define __ANSICOLORCONSOLE_H
 
+#ifdef _WIN64
+
 #define ANSI_COLOR_FG_BLACK				"\x1b[30m"
 #define ANSI_COLOR_FG_RED				"\x1b[31m"
 #define ANSI_COLOR_FG_GREEN				"\x1b[32m"
@@ -40,5 +42,49 @@
 #define ANSI_COLOR_FG_BRIGHT_GRAY 		ANSI_COLOR_FG_BRIGHT_BLACK
 
 #define ANSI_COLOR_RESET				"\x1b[0m"
+
+#else // _WIN64
+
+#define ANSI_COLOR_FG_BLACK				""
+#define ANSI_COLOR_FG_RED				""
+#define ANSI_COLOR_FG_GREEN				""
+#define ANSI_COLOR_FG_YELLOW			""
+#define ANSI_COLOR_FG_BLUE				""
+#define ANSI_COLOR_FG_MAGENTA			""
+#define ANSI_COLOR_FG_CYAN				""
+#define ANSI_COLOR_FG_WHITE				""
+
+#define ANSI_COLOR_FG_BRIGHT_BLACK		""
+#define ANSI_COLOR_FG_BRIGHT_RED		""
+#define ANSI_COLOR_FG_BRIGHT_GREEN		""
+#define ANSI_COLOR_FG_BRIGHT_YELLOW		""
+#define ANSI_COLOR_FG_BRIGHT_BLUE		""
+#define ANSI_COLOR_FG_BRIGHT_MAGENTA	""
+#define ANSI_COLOR_FG_BRIGHT_CYAN		""
+#define ANSI_COLOR_FG_BRIGHT_WHITE		""
+
+#define ANSI_COLOR_BG_BLACK				""
+#define ANSI_COLOR_BG_RED				""
+#define ANSI_COLOR_BG_GREEN				""
+#define ANSI_COLOR_BG_YELLOW			""
+#define ANSI_COLOR_BG_BLUE				""
+#define ANSI_COLOR_BG_MAGENTA			""
+#define ANSI_COLOR_BG_CYAN				""
+#define ANSI_COLOR_BG_WHITE				""
+
+#define ANSI_COLOR_BG_BRIGHT_BLACK		""
+#define ANSI_COLOR_BG_BRIGHT_RED		""
+#define ANSI_COLOR_BG_BRIGHT_GREEN		""
+#define ANSI_COLOR_BG_BRIGHT_YELLOW		""
+#define ANSI_COLOR_BG_BRIGHT_BLUE		""
+#define ANSI_COLOR_BG_BRIGHT_MAGENTA	""
+#define ANSI_COLOR_BG_BRIGHT_CYAN		""
+#define ANSI_COLOR_BG_BRIGHT_WHITE		""
+
+#define ANSI_COLOR_FG_BRIGHT_GRAY 		ANSI_COLOR_FG_BRIGHT_BLACK
+
+#define ANSI_COLOR_RESET				""
+
+#endif // _WIN64
 
 #endif //__ANSICOLORCONSOLE_H
