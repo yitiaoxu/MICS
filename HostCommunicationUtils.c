@@ -43,7 +43,7 @@ const char *hc_getFunctionStatusString(int status)
 	case HC_FUNCTION_STATUS_STORAGE_EXPORT:
 		return ENUM_COLOR_STR(HC_FUNCTION_STATUS_STORAGE_EXPORT);
 	default:
-		return "<InvalidHandshakeStatusCode>";
+		return ANSI_COLOR_FG_RED "<InvalidHandshakeStatusCode>" ANSI_COLOR_RESET;
 	}
 }
 
@@ -62,7 +62,7 @@ const char *hc_getErrorCodeString(int errcode)
 	case HC_ErrCode_ModeError:
 		return ENUM_COLOR_STR(HC_ErrCode_ModeError);
 	default:
-		return "<InvalidErrCode>";
+		return ANSI_COLOR_FG_RED "<InvalidErrCode>" ANSI_COLOR_RESET;
 	}
 }
 
@@ -83,7 +83,7 @@ const char *hc_getCommandString(int cmd)
 		return ENUM_COLOR_STR(HC_CMD_Output4kSector);
 
 	default:
-		return "<InvalidCommandCode>";
+		return ANSI_COLOR_FG_RED "<InvalidCommandCode>" ANSI_COLOR_RESET;
 	}
 }
 

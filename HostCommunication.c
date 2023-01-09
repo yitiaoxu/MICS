@@ -12,17 +12,20 @@
 
 
 #ifndef   __WEAK
-  #define __WEAK                                 __attribute__((weak))
+	#define __WEAK                                 __attribute__((weak))
 #endif
 #ifndef   __STATIC_FORCEINLINE
-  #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static __inline
+	#define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static __inline
 #endif
 
-#ifdef __ANSICOLORCONSOLE_H
-#define FUNCTION_ENTRY_INFO(_info)	printf(ANSI_COLOR_FG_BRIGHT_GRAY _info ANSI_COLOR_RESET)
-#else
-#define FUNCTION_ENTRY_INFO(_info)	printf(_info)
-#endif
+// #define FUNCTION_ENTRY_INFO(_info)
+#ifndef FUNCTION_ENTRY_INFO
+	#ifdef __ANSICOLORCONSOLE_H
+		#define FUNCTION_ENTRY_INFO(_info)	printf(ANSI_COLOR_FG_BRIGHT_GRAY _info ANSI_COLOR_RESET)
+	#else
+		#define FUNCTION_ENTRY_INFO(_info)	printf(_info)
+	#endif // __ANSICOLORCONSOLE_H
+#endif // FUNCTION_ENTRY_INFO
 
 static HostCommunicationStatus_t hc_status;
 
@@ -85,8 +88,10 @@ bool hc_cancel_test(uint8_t ch)
 
 bool HC_GotCharHandle(uint8_t ch)
 {
+	// TODO: 在'HC_HANDSHAKE_STATUS_WAIT_EXEC'和'HC_HANDSHAKE_STATUS_ON_ERROR'状态时不调用此函数，似乎可以避免命令等待执行和握手错误时发送ENQ行为的不同
+
 	bool change = true;
-	// uint8_t err;
+
 	// 连续8次输入CAN则复位
 	if (hc_cancel_test(ch))
 	{
@@ -218,6 +223,13 @@ bool HC_GotCharHandle(uint8_t ch)
 		}
 		break;
 	}
+	case HC_HANDSHAKE_STATUS_ON_ERROR:
+	{
+		// 握手状态机在错误状态下送入新字符会直接被忽略
+		// 状态也不会有变化
+		change = false;
+		break;
+	}
 	default:
 	{
 		_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, HC_ErrCode_UnexpectedStatus);
@@ -260,6 +272,12 @@ void HC_ResponseCheckHandle()
 
 	// 上一次握手完成还未执行，新的命令就发送进来，此时应回复忙错误
 	case HC_HANDSHAKE_STATUS_WAIT_EXEC:
+		if (hc_status.errcode == HC_ErrCode_NoError)
+		{
+			// 这条语句会在命令未执行时运行本函数时执行，一般来说，应当在
+			// 调用HC_ResponseCheckHandle()后调用HC_CheckAndExecuteHandle()
+			break;
+		}
 		HC_SendNAKHook(hc_status.errcode);
 		HC_ErrorProcessHook(&hc_status);
 		hc_status.errcode = HC_ErrCode_NoError;

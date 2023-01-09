@@ -52,17 +52,27 @@ int main()
 			bool change;
 			change = HC_GotCharHandle(ch);
 			// printf("change = %d\n", change);
+		}
+		else if (ch == 810)
+		{
 			if ((p_hc_status->handshake_status == HC_HANDSHAKE_STATUS_WAIT_ACK) ||
 				(p_hc_status->handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC) ||
 				(p_hc_status->handshake_status == HC_HANDSHAKE_STATUS_ON_ERROR))
 				print_hc_status();
 			HC_ResponseCheckHandle();
+		}
+		else if (ch == 811)
+		{
 			HC_CheckAndExecuteHandle();
 			HC_TimeOutCheckHandle();
 		}
-		else
+		else if (ch == 1919)
 		{
 			exitflag = true;
+		}
+		else
+		{
+			printf(ANSI_COLOR_FG_YELLOW "Not a valid char: " ANSI_COLOR_RESET "%d\n", ch);
 		}
 		printf("\n");
 	} while (!exitflag);
