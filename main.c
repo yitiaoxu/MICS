@@ -29,7 +29,7 @@ int main()
 		print_hc_status();
 		scanf("%hu", &ch);
 		// printf("Got: %d",ch);
-		if (ch < UINT8_MAX)
+		if (ch <= UINT8_MAX)
 		{
 			bool change;
 			change = HC_GotCharHandle(ch);
