@@ -14,6 +14,9 @@
 #define HC_CMD_Specify64kBlock			0x21	// 指定64K块编号
 #define HC_CMD_Output64kBlock			0x22	// 导出当前64K块
 #define HC_CMD_Erase64kBlock			0x23	// 擦除当前64K块
+#define HC_CMD_AskLastWriteResult		0x28	// 询问上次写入是否出错
+#define HC_CMD_AskFlashStatus			0x29	// 询问Flash是否忙
+#define HC_CMD_WriteFlashAtAddr			0x2a	// 在指定地址写入数据
 #define HC_CMD_EraseFullChip			0x2F	// 全片擦除
 
 #endif // __HOSTCOMMUNICATIONCOMMANDCODE_H

@@ -131,7 +131,7 @@ static void print_array_by_byte(const void *arr, unsigned int len)
 void print_hc_status()
 {
 	char strbuffer[512];
-	HostCommunicationStatus_t *const p_hc_status = (HostCommunicationStatus_t *)HC_Status();
+	const HostCommunicationStatus_t *const p_hc_status = HC_Status();
 	printf("%s\r\n", HostCommunicationStatus2str(strbuffer, p_hc_status));
 	printf(ANSI_COLOR_FG_BRIGHT_BLACK);
 	print_array_by_byte((void *)(p_hc_status->cmdbuff), HC_CMDBUFF_SIZE);
