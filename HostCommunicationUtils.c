@@ -24,6 +24,8 @@ const char *hc_getHandshakeStatusString(int status)
 		return ENUM_COLOR_STR(HC_HANDSHAKE_STATUS_WAIT_ACK);
 	case HC_HANDSHAKE_STATUS_GET_ARGS:
 		return ENUM_COLOR_STR(HC_HANDSHAKE_STATUS_GET_ARGS);
+	case HC_HANDSHAKE_STATUS_WAIT_DATA:
+		return ENUM_COLOR_STR(HC_HANDSHAKE_STATUS_WAIT_DATA);
 	case HC_HANDSHAKE_STATUS_WAIT_EXEC:
 		return ENUM_COLOR_STR(HC_HANDSHAKE_STATUS_WAIT_EXEC);
 	case HC_HANDSHAKE_STATUS_ON_ERROR:
@@ -110,10 +112,10 @@ char *HostCommunicationStatus2str(char *const buffer, const HostCommunicationSta
 {
 	sprintf(
 		buffer,
-		ANSI_COLOR_FG_MAGENTA "HostCommunicationStatus" ANSI_COLOR_RESET "(handshake_status = %s(%d), function_status = %s(%d), bytes_remain = %d, can_count = %d, cmdbuff_idx = %d, errcode = %s(%#x))",
+		ANSI_COLOR_FG_MAGENTA "HostCommunicationStatus" ANSI_COLOR_RESET "(handshake_status = %s(%d), function_status = %s(%d), args_bytes_remain = %d, can_count = %d, cmdbuff_idx = %d, errcode = %s(%#x))",
 		hc_getHandshakeStatusString(p_hc_status->handshake_status), p_hc_status->handshake_status,
 		hc_getFunctionStatusString(p_hc_status->function_status), p_hc_status->function_status,
-		p_hc_status->bytes_remain, p_hc_status->can_count, p_hc_status->cmdbuff_idx,
+		p_hc_status->args_bytes_remain, p_hc_status->can_count, p_hc_status->cmdbuff_idx,
 		hc_getErrorCodeString(p_hc_status->errcode), p_hc_status->errcode
 	);
 	return buffer;

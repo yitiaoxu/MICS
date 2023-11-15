@@ -1,11 +1,14 @@
 
-filelist = main.c HostCommunication.c HostCommunicationHooks.c HostCommunicationUtils.c
+h_files = ansicolorconsole.h asciiControlCode.h \
+          HostCommunication.h HostCommunicationCommand.h HostCommunicationCommandCode.h HostCommunicationErrorCode.h \
+          HostCommunicationUtils.h PublicCache.h
+c_files = main.c HostCommunication.c HostCommunicationHooks.c HostCommunicationUtils.c PublicCache.c
 
 .PHONY: default
 default: main.exe dump
 
-main.exe: $(filelist)
-	gcc -std=c99 $(filelist) -o $@
+main.exe: $(h_files) $(c_files)
+	gcc -std=c99 $(c_files) -o $@
 
 .PHONY: dump
 dump: main.exe

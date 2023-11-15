@@ -10,13 +10,6 @@
 #include "HostCommunicationErrorCode.h"
 
 
-#ifndef   __WEAK
-	#define __WEAK                                 __attribute__((weak))
-#endif
-#ifndef   __STATIC_FORCEINLINE
-	#define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static __inline
-#endif
-
 // #define FUNCTION_ENTRY_INFO(_info)	// 忽略所有FUNCTION_ENTRY_INFO
 #ifndef FUNCTION_ENTRY_INFO
 	#if (defined(__stdio_h) || defined(_INC_STDIO))
@@ -43,14 +36,23 @@ __STATIC_FORCEINLINE void _hc_handshake_error(uint16_t next_handshake_status, ui
 	return;
 }
 
-void HC_Status_Init()
+void HC_Status_Reset()
 {
 	hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
 	hc_status.function_status = HC_FUNCTION_STATUS_STANDBY;
-	hc_status.bytes_remain = 0;
+	hc_status.args_bytes_remain = 0;
+	hc_status.data_bytes_remain = 0;
 	hc_status.can_count = 0;
 	hc_status.cmdbuff_idx = 0;
 	hc_status.errcode = HC_ErrCode_NoError;
+	hc_status.data_buff_point = hc_status.data_buff_head;
+	return;
+}
+
+void HC_Status_Init(uint8_t *databuff)
+{
+	hc_status.data_buff_head = databuff;
+	HC_Status_Reset();
 	return;
 }
 
@@ -97,7 +99,7 @@ bool HC_GotCharHandle(uint8_t ch)
 	// 连续8次输入CAN则复位
 	if (hc_cancel_test(ch))
 	{
-		HC_Status_Init();
+		HC_Status_Reset();
 		#ifdef __HC_DEBUG
 		printf("因CAN达到8次而状态复位\r\n");
 		#endif // __HC_DEBUG
@@ -220,17 +222,17 @@ bool HC_GotCharHandle(uint8_t ch)
 	case HC_HANDSHAKE_STATUS_GET_ARGS:
 	{
 		// 若参数不满则继续填充
-		if (hc_status.bytes_remain > 0)
+		if (hc_status.args_bytes_remain > 0)
 		{
 			hc_status.cmdbuff[hc_status.cmdbuff_idx++] = ch; // 参数存入缓存
-			--hc_status.bytes_remain;
+			--hc_status.args_bytes_remain;
 		}
 
-		// 这里两个if不能合在一起，因为参数输入完成（bytes_remain==0）后要立刻
+		// 这里两个if不能合在一起，因为参数输入完成（args_bytes_remain==0）后要立刻
 		// 转移状态，不能留到下一次读字符，否则会丢失这个字符。
 
 		// 若参数填满则进入下一个状态
-		if (hc_status.bytes_remain == 0)
+		if (hc_status.args_bytes_remain == 0)
 		{
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_ACK;
 		}

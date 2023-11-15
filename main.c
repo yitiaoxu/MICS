@@ -8,7 +8,7 @@
 
 #include "HostCommunication.h"
 #include "HostCommunicationUtils.h"
-
+#include "PublicCache.h"
 
 int main()
 {
@@ -21,7 +21,7 @@ int main()
 	// https://learn.microsoft.com/zh-cn/windows/console/setconsoletextattribute
 	// printf("\x1b[31m" "Color Char Test\n" "\x1b[0m");
 
-	HC_Status_Init();
+	HC_Status_Init(public_cache);
 
 	do
 	{
