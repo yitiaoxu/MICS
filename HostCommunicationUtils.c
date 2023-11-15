@@ -100,6 +100,18 @@ const char *hc_getCommandString(int cmd)
 		return ENUM_COLOR_STR(HC_CMD_Output64kBlock);
 	case HC_CMD_Erase64kBlock:
 		return ENUM_COLOR_STR(HC_CMD_Erase64kBlock);
+	case HC_CMD_Specify4kSector:
+		return ENUM_COLOR_STR(HC_CMD_Specify4kSector);
+	case HC_CMD_Output4kSector:
+		return ENUM_COLOR_STR(HC_CMD_Output4kSector);
+	case HC_CMD_Erase4kSector:
+		return ENUM_COLOR_STR(HC_CMD_Erase4kSector);
+	case HC_CMD_AskLastWriteResult:
+		return ENUM_COLOR_STR(HC_CMD_AskLastWriteResult);
+	case HC_CMD_AskFlashStatus:
+		return ENUM_COLOR_STR(HC_CMD_AskFlashStatus);
+	case HC_CMD_WriteFlashAtAddr:
+		return ENUM_COLOR_STR(HC_CMD_WriteFlashAtAddr);
 	case HC_CMD_EraseFullChip:
 		return ENUM_COLOR_STR(HC_CMD_EraseFullChip);
 
@@ -112,10 +124,13 @@ char *HostCommunicationStatus2str(char *const buffer, const HostCommunicationSta
 {
 	sprintf(
 		buffer,
-		ANSI_COLOR_FG_MAGENTA "HostCommunicationStatus" ANSI_COLOR_RESET "(handshake_status = %s(%d), function_status = %s(%d), args_bytes_remain = %d, can_count = %d, cmdbuff_idx = %d, handshake_errcode = %s(%#x))",
+		ANSI_COLOR_FG_MAGENTA "HostCommunicationStatus" ANSI_COLOR_RESET "(handshake_status = %s(%d), function_status = %s(%d), "
+		"args_bytes_remain = %d, data_bytes_remain = %d, can_count = %d, cmdbuff_idx = %d, databuff_idx = %d, "
+		"handshake_errcode = %s(%#x))",
 		hc_getHandshakeStatusString(p_hc_status->handshake_status), p_hc_status->handshake_status,
 		hc_getFunctionStatusString(p_hc_status->function_status), p_hc_status->function_status,
-		p_hc_status->args_bytes_remain, p_hc_status->can_count, p_hc_status->cmdbuff_idx,
+		p_hc_status->args_bytes_remain, p_hc_status->data_bytes_remain, p_hc_status->can_count,
+		p_hc_status->cmdbuff_idx, p_hc_status->data_buff_point - p_hc_status->data_buff_head,
 		hc_getErrorCodeString(p_hc_status->handshake_errcode), p_hc_status->handshake_errcode
 	);
 	return buffer;

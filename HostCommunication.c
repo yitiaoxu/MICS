@@ -361,6 +361,7 @@ void HC_ResponseCheckHandle()
 		{
 			const HC_CMD_WriteFlashAtAddr_Args_t *const p_cmd = (const HC_CMD_WriteFlashAtAddr_Args_t *)&hc_status.cmdbuff;
 			uint16_t length = p_cmd->length_m1 + 1;
+			// printf("\tArgs: [%#x, %d]", p_cmd->addr, p_cmd->length_m1);
 			hc_status.data_bytes_remain = length + 2;	// STX + data[] + ETX
 			break;
 		}
@@ -368,7 +369,7 @@ void HC_ResponseCheckHandle()
 			break;
 		}
 		// 决定下一个状态
-		if (hc_status.handshake_status > 0)
+		if (hc_status.data_bytes_remain > 0)
 		{	// 有数据需要接收
 			hc_status.handshake_errcode = HC_ErrCode_NoError;			// NOTE: 仅当有新的数据接收命令时清空错误状态
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_DATA;
