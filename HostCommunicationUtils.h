@@ -10,6 +10,7 @@ const char *hc_getCommandString(int cmd);
 
 char *HostCommunicationStatus2str(char *const buffer, const HostCommunicationStatus_t *const p_hc_status);
 
+void print_array_by_byte(const void *arr, unsigned int len);
 void print_hc_status(void);
 
 #endif // __HOSTCOMMUNICATIONUTILS_H

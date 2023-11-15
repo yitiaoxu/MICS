@@ -40,7 +40,8 @@ typedef volatile struct _HC_Status_t
 	uint16_t data_bytes_remain;			// 剩余数据
 	uint16_t can_count;					// CAN字符计数
 	uint16_t cmdbuff_idx;				// 命令缓存头指针
-	uint16_t errcode;					// 错误状态及其代码
+	uint16_t handshake_errcode;			// 握手错误状态及其代码
+	uint16_t datarecv_errcode;			// 数据接收错误状态及其代码	// TODO: 貌似没啥用了
 	uint8_t *data_buff_head;			// 数据缓存头指针
 	uint8_t *data_buff_point;			// 数据缓存写指针
 	uint8_t  cmdbuff[HC_CMDBUFF_SIZE];	// 命令缓存
@@ -84,12 +85,12 @@ void HC_TimeOutCheckHandle(void);
 void HC_CheckAndExecuteHandle(void);
 
 /// @brief 实现ACK的发送
-/// @param errcode 错误代码，为'hc_status.errcode'，理应为'HC_ErrCode_NoError'
-void HC_SendACKHook(uint16_t errcode);
+/// @param handshake_errcode 错误代码，为'hc_status.handshake_errcode'，理应为'HC_ErrCode_NoError'
+void HC_SendACKHook(uint16_t handshake_errcode);
 
 /// @brief 实现NAK的发送
-/// @param errcode 错误代码，为hc_status.errcode
-void HC_SendNAKHook(uint16_t errcode);
+/// @param handshake_errcode 错误代码，为hc_status.handshake_errcode
+void HC_SendNAKHook(uint16_t handshake_errcode);
 
 /// @brief 实现错误处理
 /// @param p_hc_status 指向hc_status的指针
