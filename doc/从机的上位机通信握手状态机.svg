@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- 由 Microsoft Visio, SVG Export 生成 上位机通信握手状态机.svg 握手状态机 -->
+<!-- 由 Microsoft Visio, SVG Export 生成 从机的上位机通信握手状态机.svg 握手状态机 -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
-		width="9.55845in" height="4.95722in" viewBox="0 0 688.208 356.92" xml:space="preserve" color-interpolation-filters="sRGB"
+		width="11.527in" height="4.95722in" viewBox="0 0 829.941 356.92" xml:space="preserve" color-interpolation-filters="sRGB"
 		class="st11">
 	<style type="text/css">
 	<![CDATA[
@@ -69,11 +69,11 @@
 			<desc>等待回复确认 WAIT ACK</desc>
 			<rect x="0" y="314.4" width="70.8661" height="42.5197" class="st1"/>
 			<text x="5.43" y="332.66" class="st2">等待回复确认 <tspan x="15.43" dy="1.2em" class="st3">WAIT ACK</tspan></text>		</g>
-		<g id="shape23-31" transform="translate(599.222,-182.895)">
+		<g id="shape23-31" transform="translate(740.955,-182.895)">
 			<title>流程.23</title>
-			<desc>等待执行 WAIT ACK</desc>
+			<desc>等待执行 WAIT EXEC</desc>
 			<rect x="0" y="314.4" width="70.8661" height="42.5197" class="st1"/>
-			<text x="15.43" y="332.66" class="st2">等待执行<tspan x="15.43" dy="1.2em" class="st3">WAIT ACK</tspan></text>		</g>
+			<text x="15.43" y="332.66" class="st2">等待执行<tspan x="12.93" dy="1.2em" class="st3">WAIT EXEC</tspan></text>		</g>
 		<g id="shape24-35" transform="translate(457.49,-69.5087)">
 			<title>流程.24</title>
 			<desc>等待回复错误 ON ERROR</desc>
@@ -87,9 +87,9 @@
 			<title>动态连接线.26</title>
 			<path d="M0 349.83 L62.83 349.83" class="st6"/>
 		</g>
-		<g id="shape27-49" transform="translate(528.356,-197.068)">
+		<g id="shape27-49" transform="translate(492.923,-218.328)">
 			<title>动态连接线.27</title>
-			<path d="M0 349.83 L62.83 349.83" class="st6"/>
+			<path d="M0 349.83 L0 321.49 L283.46 321.49 L283.46 341.79" class="st6"/>
 		</g>
 		<g id="shape28-54" transform="translate(351.191,-182.895)">
 			<title>动态连接线.28</title>
@@ -99,17 +99,17 @@
 			<title>动态连接线.29</title>
 			<path d="M0 356.92 L0 449.05 L239.99 449.05" class="st6"/>
 		</g>
-		<g id="shape31-64" transform="translate(209.459,-218.328)">
+		<g id="shape31-64" transform="translate(209.459,-225.414)">
 			<title>动态连接线.31</title>
-			<path d="M0 349.83 L0 321.49 L283.46 321.49 L283.46 341.79" class="st6"/>
+			<path d="M0 356.92 L0 328.57 L233.86 328.57 L233.86 378.18 L239.99 378.18" class="st6"/>
 		</g>
 		<g id="shape32-69" transform="translate(500.01,-69.5087)">
 			<title>动态连接线.32</title>
 			<path d="M-7.09 356.92 L-7.09 391.4" class="st6"/>
 		</g>
-		<g id="shape33-74" transform="translate(634.655,-175.808)">
+		<g id="shape33-74" transform="translate(776.388,-175.808)">
 			<title>动态连接线.33</title>
-			<path d="M0 349.83 L0 505.74 L-566.93 505.74 L-566.93 357.87" class="st6"/>
+			<path d="M0 349.83 L0 505.74 L-708.66 505.74 L-708.66 357.87" class="st6"/>
 		</g>
 		<g id="shape34-79" transform="translate(18.12,-296.28)">
 			<title>自定义 4</title>
@@ -150,11 +150,11 @@
 			<desc>参数接收</desc>
 			<rect x="0" y="342.747" width="70.8661" height="14.1732" class="st7"/>
 			<text x="4" y="352.83" class="st2">参数接收</text>		</g>
-		<g id="shape47-106" transform="translate(528.356,-168.721)">
+		<g id="shape47-106" transform="translate(528.356,-218.328)">
 			<title>工作表.47</title>
 			<desc>TX=ACK</desc>
-			<rect x="0" y="342.747" width="70.8661" height="14.1732" class="st7"/>
-			<text x="4" y="352.83" class="st8">TX=ACK</text>		</g>
+			<rect x="0" y="335.66" width="70.8661" height="21.2598" class="st7"/>
+			<text x="4" y="349.29" class="st8">TX=ACK</text>		</g>
 		<g id="shape48-109" transform="translate(521.27,-34.0756)">
 			<title>工作表.48</title>
 			<desc>TX=NAK TX=ErrorCode</desc>
@@ -164,23 +164,49 @@
 			<title>动态连接线.49</title>
 			<path d="M0 349.83 L28.35 349.83" class="st9"/>
 		</g>
-		<g id="shape50-119" transform="translate(549.616,-204.154)">
+		<g id="shape50-119" transform="translate(549.616,-253.761)">
 			<title>动态连接线.50</title>
-			<path d="M7.09 356.92 L7.09 378.18" class="st9"/>
+			<path d="M7.09 356.92 L7.09 371.09" class="st9"/>
 		</g>
-		<g id="shape51-124" transform="translate(585.049,-112.028)">
+		<g id="shape51-124" transform="translate(726.781,-112.028)">
 			<title>工作表.51</title>
 			<desc>执行完毕</desc>
 			<rect x="0" y="342.747" width="49.6063" height="14.1732" class="st7"/>
 			<text x="5.61" y="352.83" class="st2">执行完毕</text>		</g>
-		<g id="shape52-127" transform="translate(549.616,-140.375)">
+		<g id="shape52-127" transform="translate(691.348,-140.375)">
 			<title>工作表.52</title>
 			<desc>TX=...</desc>
 			<rect x="0" y="342.747" width="49.6063" height="14.1732" class="st7"/>
 			<text x="4" y="352.83" class="st8">TX=...</text>		</g>
-		<g id="shape53-130" transform="translate(634.655,-140.375)">
+		<g id="shape53-130" transform="translate(776.388,-140.375)">
 			<title>动态连接线.53</title>
 			<path d="M0 349.83 L-35.43 349.83" class="st9"/>
 		</g>
+		<g id="shape54-135" transform="translate(599.222,-182.895)">
+			<title>流程.54</title>
+			<desc>数据接收 WAIT DATA</desc>
+			<rect x="0" y="314.4" width="70.8661" height="42.5197" class="st1"/>
+			<text x="15.43" y="332.66" class="st2">数据接收<tspan x="12.93" dy="1.2em" class="st3">WAIT DATA</tspan></text>		</g>
+		<g id="shape55-139" transform="translate(528.356,-197.068)">
+			<title>动态连接线.55</title>
+			<path d="M0 349.83 L62.83 349.83" class="st6"/>
+		</g>
+		<g id="shape56-144" transform="translate(670.088,-197.068)">
+			<title>动态连接线.56</title>
+			<path d="M0 349.83 L62.83 349.83" class="st6"/>
+		</g>
+		<g id="shape57-149" transform="translate(549.616,-204.154)">
+			<title>动态连接线.57</title>
+			<path d="M7.09 356.92 L7.09 342.75" class="st9"/>
+		</g>
+		<g id="shape58-154" transform="translate(627.569,-182.895)">
+			<title>动态连接线.58</title>
+			<path d="M7.09 356.92 L7.09 504.79" class="st6"/>
+		</g>
+		<g id="shape59-159" transform="translate(634.655,-41.1622)">
+			<title>工作表.59</title>
+			<desc>超时</desc>
+			<rect x="0" y="342.747" width="49.6063" height="14.1732" class="st7"/>
+			<text x="4" y="352.83" class="st2">超时</text>		</g>
 	</g>
 </svg>
