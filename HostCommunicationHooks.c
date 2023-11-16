@@ -32,25 +32,30 @@ void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
 	int cmdcode = p_hc_status->cmdbuff[0];
 	printf(ANSI_COLOR_FG_GREEN "Command: " ANSI_COLOR_RESET "%s(%d)", hc_getCommandString(cmdcode), cmdcode);
 
-	int datalength;
+	int datalength = 0;
 	switch (cmdcode)
 	{
+	// case HC_CMD_Specify64kBlock:
+	// 	break;
 	case HC_CMD_WriteFlashAtAddr:
-		const HC_CMD_WriteFlashAtAddr_Args_t *const p_cmd = (const HC_CMD_WriteFlashAtAddr_Args_t *)p_hc_status->cmdbuff;
+	{
+		const HC_CMD_WriteFlashAtAddr_Args_t *const p_cmd = (const HC_CMD_WriteFlashAtAddr_Args_t *)(p_hc_status->cmdbuff);
 		datalength = p_cmd->length_m1 + 1 + 2;
-		printf("\tArgs: [%#x, %d]", p_cmd->addr, p_cmd->length_m1);
+		printf("\t" ANSI_COLOR_FG_GREEN "Args: " ANSI_COLOR_RESET "[%#x, %d]", p_cmd->addr, p_cmd->length_m1);
 		break;
+	}
 	default:
-		datalength = 0;
+	{
 		break;
+	}
 	}
 	if (datalength)
 	{
-		printf("\tData: [");
+		printf("\t" ANSI_COLOR_FG_GREEN "Data: " ANSI_COLOR_RESET "[");
 		print_array_by_byte(p_hc_status->data_buff_head, datalength);
 		printf("]");
 	}
-	printf("\r\n", hc_getCommandString(cmdcode), cmdcode);
+	printf("\r\n");
 
 	HC_CommandFinishHandle();
 	return;

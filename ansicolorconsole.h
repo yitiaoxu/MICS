@@ -1,7 +1,30 @@
+/*
+    C & CPP Utilities
+    Copyright (C) 2023  Xiao Siyu
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #ifndef __ANSICOLORCONSOLE_H
 #define __ANSICOLORCONSOLE_H
 
-#ifdef _WIN64
+#if (defined(_WIN64) || defined(__linux__))
+#define ANSICOLORCONSOLE_ENABLED
+#endif
+
+
+#ifdef ANSICOLORCONSOLE_ENABLED
 
 #define ANSI_COLOR_FG_BLACK				"\x1b[30m"
 #define ANSI_COLOR_FG_RED				"\x1b[31m"
@@ -43,7 +66,7 @@
 
 #define ANSI_COLOR_RESET				"\x1b[0m"
 
-#else // _WIN64
+#else // ANSICOLORCONSOLE_ENABLED
 
 #define ANSI_COLOR_FG_BLACK				""
 #define ANSI_COLOR_FG_RED				""
@@ -85,6 +108,8 @@
 
 #define ANSI_COLOR_RESET				""
 
-#endif // _WIN64
+#endif // ANSICOLORCONSOLE_ENABLED
+
+#define ANSI_COLOR(color, str) ANSI_COLOR_FG_##color str ANSI_COLOR_RESET
 
 #endif //__ANSICOLORCONSOLE_H

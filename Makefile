@@ -19,4 +19,4 @@ dump: main.exe
 
 .PHONY: run
 run: main.exe
-	$<
+	./$<

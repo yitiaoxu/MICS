@@ -1,9 +1,12 @@
 #include "HostCommunication.h"
 #include "sys.h"
 
+#ifdef __HC_DEBUG
+#include <stdio.h>
+#include "ansicolorconsole.h"
+#endif
 // #include <stdio.h>
-
-// #include "ansicolorconsole.h"
+// #include <assert.h>
 
 #include "asciiControlCode.h"
 #include "HostCommunicationCommand.h"
@@ -13,7 +16,7 @@
 
 // #define FUNCTION_ENTRY_INFO(_info)	// 忽略所有FUNCTION_ENTRY_INFO
 #ifndef FUNCTION_ENTRY_INFO
-	#if (defined(__stdio_h) || defined(_INC_STDIO))
+	#if (defined(__stdio_h) || defined(_STDIO_H) || defined(_INC_STDIO))
 		#ifdef __ANSICOLORCONSOLE_H
 			#define FUNCTION_ENTRY_INFO(_info)	printf(ANSI_COLOR_FG_BRIGHT_GRAY _info ANSI_COLOR_RESET)
 		#else
@@ -39,10 +42,10 @@ __STATIC_FORCEINLINE void _hc_handshake_error(uint16_t next_handshake_status, ui
 
 /// @brief 获取当前命令代码
 /// @return 命令代码
+/// @note 当前的设计中命令代码只有1个字节
 /// @attention 需要考虑有效性，不总是有效
 __STATIC_FORCEINLINE uint8_t _hc_get_cmd()
 {
-	// TODO: 需要测试正确性！
 	return hc_status.cmdbuff[0];
 }
 
@@ -166,12 +169,18 @@ bool HC_GotCharHandle(uint8_t ch)
 		else // 剩下的字符都忽略
 		{
 			change = false;
+			#ifdef __HC_DEBUG
+			printf("字符'%c'被忽略\r\n", ch);
+			#endif
 		}
 		break;
 	}
 	case HC_HANDSHAKE_STATUS_GET_CMD:
 	{
-		if (ch == HC_CMD_FuncStatusBackToStandBy) // 特殊命令单独处理
+		// 以下代码仅考虑了命令长度为1字节、即本函数运行后GET_CMD状态必定跳转，因此均用ch指代命令
+
+		// 特殊命令单独处理
+		if (ch == HC_CMD_FuncStatusBackToStandBy)
 		{
 			switch (hc_status.function_status)
 			{
@@ -189,12 +198,13 @@ bool HC_GotCharHandle(uint8_t ch)
 				break;
 			}
 		}
-
-		// TODO: assert hc_status.cmdbuff_idx==0
+		// assert(hc_status.cmdbuff_idx == 0);
 		hc_status.cmdbuff[hc_status.cmdbuff_idx++] = ch; // 命令存入缓存
-		// TODO: assert _hc_get_cmd()==ch?
+		// printf("<%d, %d, %d>\r\n", hc_status.cmdbuff_idx - 1, ch, _hc_get_cmd());
 
-		switch (ch) // 此处是各命令的处理 // NOTE: 这里貌似有个问题，如果命令多余一个字节，这样写可能会出错
+		// 根据命令值修改状态机状态
+		// NOTE: 这里貌似有个问题，如果命令多余一个字节，这样写可能会出错
+		switch (ch)
 		{
 		case HC_CMD_NOP:
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_ACK;
@@ -286,6 +296,9 @@ bool HC_GotCharHandle(uint8_t ch)
 		else // 剩下的字符都忽略
 		{
 			change = false;
+			#ifdef __HC_DEBUG
+			printf("字符'%c'被忽略\r\n", ch);
+			#endif
 		}
 		break;
 	}
@@ -306,13 +319,6 @@ bool HC_GotCharHandle(uint8_t ch)
 		{
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_EXEC;
 		}
-
-		// TODO: 这些代码似乎没用，之后删掉
-		// ptrdiff_t offset = hc_status.data_buff_point - hc_status.data_buff_head;	// 等效于当前存了多少个字节
-		// if(hc_status.datarecv_errcode == HC_ErrCode_NoError)// 如果发生了错误则跳过
-		// {
-		// }
-
 		break;
 	}
 	case HC_HANDSHAKE_STATUS_ON_ERROR:
