@@ -14,28 +14,41 @@
 #include "HostCommunicationErrorCode.h"
 
 
-// #define FUNCTION_ENTRY_INFO(_info)	// 忽略所有FUNCTION_ENTRY_INFO
+// #define FUNCTION_ENTRY_INFO(_func_func)	// 忽略所有FUNCTION_ENTRY_INFO
 #ifndef FUNCTION_ENTRY_INFO
 	#if (defined(__stdio_h) || defined(_STDIO_H) || defined(_INC_STDIO))
 		#ifdef __ANSICOLORCONSOLE_H
-			#define FUNCTION_ENTRY_INFO(_info)	printf(ANSI_COLOR_FG_BRIGHT_GRAY _info ANSI_COLOR_RESET)
+			#define FUNCTION_ENTRY_INFO(_func)	printf(ANSI_COLOR_FG_BRIGHT_GRAY "%s" ANSI_COLOR_RESET "\r\n", _func)
 		#else
-			#define FUNCTION_ENTRY_INFO(_info)	printf(_info)
+			#define FUNCTION_ENTRY_INFO(_func)	printf("%s\r\n", _func)
 		#endif // __ANSICOLORCONSOLE_H
 	#else // __stdio_h || _INC_STDIO
-		#define FUNCTION_ENTRY_INFO(_info)
+		#define FUNCTION_ENTRY_INFO(_func)
 	#endif // __stdio_h || _INC_STDIO
 #endif // FUNCTION_ENTRY_INFO
 
+
 static HostCommunicationStatus_t hc_status;
 
-/// @brief 同时改变握手状态和错误代码
+/// @brief 握手出错时，同时改变握手状态和错误代码
 /// @param next_handshake_status 送入'hc_status.handshake_status'的值
 /// @param next_errorcode 送入'hc_status.handshake_errcode'的值
 __STATIC_FORCEINLINE void _hc_handshake_error(uint16_t next_handshake_status, uint16_t next_errorcode)
 {
 	// TODO: 是否要考虑开关中断？
 	hc_status.handshake_errcode = next_errorcode;
+	hc_status.handshake_status = next_handshake_status;
+	return;
+}
+
+/// @brief 数据接收出错时，同时改变握手状态和错误代码
+/// @param next_handshake_status 送入'hc_status.handshake_status'的值
+/// @param next_errorcode 送入'hc_status.datarecv_errcode'的值
+/// @return
+__STATIC_FORCEINLINE void _hc_datareceive_error(uint16_t next_handshake_status, uint16_t next_errorcode)
+{
+	// TODO: 是否要考虑开关中断？
+	hc_status.datarecv_errcode = next_errorcode;
 	hc_status.handshake_status = next_handshake_status;
 	return;
 }
@@ -81,6 +94,16 @@ static void _hc_nbytes_args_command_at_function_status(uint16_t function_status,
 	return;
 }
 
+/// @brief 记录当前时间
+/// @return 当前时间
+__STATIC_FORCEINLINE uint32_t _hc_tic()
+{
+	hc_status.wait_tic = HC_GetTimeHook();
+	return hc_status.wait_tic;
+}
+
+// ----------------------------------------------------------------
+
 void HC_Status_Reset()
 {
 	hc_status.handshake_status = HC_HANDSHAKE_STATUS_IDLE;
@@ -91,6 +114,7 @@ void HC_Status_Reset()
 	hc_status.cmdbuff_idx = 0;
 	hc_status.handshake_errcode = HC_ErrCode_NoError;
 	hc_status.datarecv_errcode = HC_ErrCode_NoError;
+	hc_status.wait_tic = 0;
 	hc_status.data_buff_point = hc_status.data_buff_head;
 	return;
 }
@@ -297,7 +321,7 @@ bool HC_GotCharHandle(uint8_t ch)
 		{
 			change = false;
 			#ifdef __HC_DEBUG
-			printf("字符'%c'被忽略\r\n", ch);
+			printf(ANSI_COLOR_FG_BRIGHT_YELLOW "字符'%c'被忽略" ANSI_COLOR_RESET "\r\n", ch);
 			#endif
 		}
 		break;
@@ -353,7 +377,7 @@ void HC_CommandFinishHandle()
 
 void HC_ResponseCheckHandle()
 {
-	FUNCTION_ENTRY_INFO("HC_ResponseCheckHandle()\r\n");
+	FUNCTION_ENTRY_INFO(__func__);
 
 	switch (hc_status.handshake_status)
 	{
@@ -377,22 +401,15 @@ void HC_ResponseCheckHandle()
 		// 决定下一个状态
 		if (hc_status.data_bytes_remain > 0)
 		{	// 有数据需要接收
-			hc_status.handshake_errcode = HC_ErrCode_NoError;			// NOTE: 仅当有新的数据接收命令时清空错误状态
+			hc_status.datarecv_errcode = HC_ErrCode_NoError;			// NOTE: 仅当有新的数据接收命令时清空错误状态
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_DATA;
+			_hc_tic();
 		}
 		else
 		{	// 无数据需要接收
 			hc_status.handshake_status = HC_HANDSHAKE_STATUS_WAIT_EXEC;
 		}
 		break;
-
-	case HC_HANDSHAKE_STATUS_WAIT_DATA:
-		// HC_ResponseCheckHandle()设计上会被主循环调用，并且串口中断时HC_GotCharHandle()永远不会被调用，
-		// 因此超时判定放在此处比较合适
-
-		// TODO: 超时判定
-		break;
-
 	// 上一次握手完成还未执行，新的命令就发送进来，此时应回复忙错误
 	case HC_HANDSHAKE_STATUS_WAIT_EXEC:
 		if (hc_status.handshake_errcode == HC_ErrCode_NoError)
@@ -420,13 +437,33 @@ void HC_ResponseCheckHandle()
 
 void HC_TimeOutCheckHandle()
 {
-	FUNCTION_ENTRY_INFO("HC_TimeOutCheckHandle()\r\n");
-	// TODO: 尚未完成
+	FUNCTION_ENTRY_INFO(__func__);
+	// TODO: 目前超时判断只针对输入数据有效，还要考虑其他的情况
+	switch (hc_status.handshake_status)
+	{
+	case HC_HANDSHAKE_STATUS_WAIT_DATA:
+	{
+		uint32_t tic = hc_status.wait_tic;
+		uint32_t toc = HC_GetTimeHook();
+		bool timeout = HC_TimeoutHook(tic, toc);
+		if (timeout)
+		{
+			#ifdef __HC_DEBUG
+			printf(ANSI_COLOR_FG_RED "超时" ANSI_COLOR_RESET "tic = %u, toc = %u\r\n", tic, toc);
+			#endif // __HC_DEBUG
+			_hc_datareceive_error(HC_HANDSHAKE_STATUS_IDLE, HC_ErrCode_TimeOut);
+		}
+		break;
+	}
+	default:
+		break;
+	}
 	return;
 }
 
 void HC_CheckAndExecuteHandle()
 {
+	FUNCTION_ENTRY_INFO(__func__);
 	if ((hc_status.handshake_status == HC_HANDSHAKE_STATUS_WAIT_EXEC))
 	{
 		HC_ExecuteHook(&hc_status);
@@ -458,4 +495,14 @@ __WEAK void HC_ErrorProcessHook(HostCommunicationStatus_t *const p_hc_status)
 __WEAK void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
 {
 	return;
+}
+
+__WEAK uint32_t HC_GetTimeHook()
+{
+	return 0;
+}
+
+__WEAK bool HC_TimeoutHook(uint32_t tic, uint32_t toc)
+{
+	return false;
 }

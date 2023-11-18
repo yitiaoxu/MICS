@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <time.h>
 
 #include "ansicolorconsole.h"
 
@@ -59,4 +60,22 @@ void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
 
 	HC_CommandFinishHandle();
 	return;
+}
+
+uint32_t HC_GetTimeHook()
+{
+	return clock();
+}
+
+bool HC_TimeoutHook(uint32_t tic, uint32_t toc)
+{
+	if (tic > toc)
+	{
+		return true;
+	}
+	else if ((toc - tic) > CLOCKS_PER_SEC * 10)
+	{
+		return true;
+	}
+	return false;
 }

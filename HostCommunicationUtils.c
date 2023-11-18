@@ -60,6 +60,10 @@ const char *hc_getErrorCodeString(int errcode)
 		return ENUM_COLOR_STR(HC_ErrCode_UnknownError);
 	case HC_ErrCode_UnexpectedStatus:
 		return ENUM_COLOR_STR(HC_ErrCode_UnexpectedStatus);
+	case HC_ErrCode_TimeOut:
+		return ENUM_COLOR_STR(HC_ErrCode_TimeOut);
+	case HC_ErrCode_ProtocolMismatch:
+		return ENUM_COLOR_STR(HC_ErrCode_ProtocolMismatch);
 	case HC_ErrCode_Busy:
 		return ENUM_COLOR_STR(HC_ErrCode_Busy);
 	case HC_ErrCode_UnknownCmd:
@@ -126,12 +130,15 @@ char *HostCommunicationStatus2str(char *const buffer, const HostCommunicationSta
 		buffer,
 		ANSI_COLOR_FG_MAGENTA "HostCommunicationStatus" ANSI_COLOR_RESET "(handshake_status = %s(%d), function_status = %s(%d), "
 		"args_bytes_remain = %d, data_bytes_remain = %d, can_count = %d, cmdbuff_idx = %d, databuff_idx = %d, "
-		"handshake_errcode = %s(%#x))",
+		"handshake_errcode = %s(%#x), datarecv_errcode = %s(%#x), "
+		"tic = %u), toc = %u",
 		hc_getHandshakeStatusString(p_hc_status->handshake_status), p_hc_status->handshake_status,
 		hc_getFunctionStatusString(p_hc_status->function_status), p_hc_status->function_status,
 		p_hc_status->args_bytes_remain, p_hc_status->data_bytes_remain, p_hc_status->can_count,
 		p_hc_status->cmdbuff_idx, p_hc_status->data_buff_point - p_hc_status->data_buff_head,
-		hc_getErrorCodeString(p_hc_status->handshake_errcode), p_hc_status->handshake_errcode
+		hc_getErrorCodeString(p_hc_status->handshake_errcode), p_hc_status->handshake_errcode,
+		hc_getErrorCodeString(p_hc_status->datarecv_errcode), p_hc_status->datarecv_errcode,
+		p_hc_status->wait_tic, HC_GetTimeHook()
 	);
 	return buffer;
 }

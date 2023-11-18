@@ -41,7 +41,8 @@ typedef volatile struct _HC_Status_t
 	uint16_t can_count;					// CAN字符计数
 	uint16_t cmdbuff_idx;				// 命令缓存头指针
 	uint16_t handshake_errcode;			// 握手错误状态及其代码
-	uint16_t datarecv_errcode;			// 数据接收错误状态及其代码	// TODO: 貌似没啥用了
+	uint16_t datarecv_errcode;			// 数据接收错误状态及其代码
+	uint32_t wait_tic;					// 通信等待开始时的时刻
 	uint8_t *data_buff_head;			// 数据缓存头指针
 	uint8_t *data_buff_point;			// 数据缓存写指针
 	uint8_t  cmdbuff[HC_CMDBUFF_SIZE];	// 命令缓存
@@ -100,6 +101,17 @@ void HC_ErrorProcessHook(HostCommunicationStatus_t *const p_hc_status);
 /// @param p_hc_status 指向hc_status的指针
 /// @note 本函数不检查状态，而是由HC_GotCharHandle检查
 void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status);
+
+/// @brief 获取时间戳
+/// @return 当前时刻的时间戳
+uint32_t HC_GetTimeHook(void);
+
+/// @brief 判断是否超时
+/// @param tic 起始时刻时间戳
+/// @param toc 结束时刻时间戳
+/// @retval `true`: 超时
+/// @retval `false`: 未超时
+bool HC_TimeoutHook(uint32_t tic, uint32_t toc);
 
 #ifdef __cplusplus
 }

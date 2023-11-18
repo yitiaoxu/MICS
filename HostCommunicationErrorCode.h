@@ -4,8 +4,8 @@
 
 // NOTE: 协议中错误代码仅使用了1个字节，但是储存控件中有2个字节可用，因此错误代码不能超过1字节
 
-#define HC_ErrCode_NoError				0x00	// 无错误
 #define HC_ErrCode_IDLE					0x00	// 空闲
+#define HC_ErrCode_NoError				0x00	// 无错误
 #define HC_ErrCode_UnknownError			0xff	// 未知错误
 
 #define HC_ErrCode_UnexpectedStatus		0x10	// 预料之外的状态
