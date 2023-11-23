@@ -1,7 +1,7 @@
 #ifndef __HOSTCOMMUNICATIONCOMMAND_H
 #define __HOSTCOMMUNICATIONCOMMAND_H
 
-#include "sys.h"
+#include "assist_cmsis.h"
 
 #include "HostCommunicationCommandCode.h"
 

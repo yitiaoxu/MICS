@@ -1,5 +1,5 @@
 #include "HostCommunication.h"
-#include "sys.h"
+#include "assist_cmsis.h"
 
 #ifdef __HC_DEBUG
 #include <stdio.h>

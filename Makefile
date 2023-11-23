@@ -1,6 +1,6 @@
 
 c_args  = -D__HC_DEBUG
-h_files = ansicolorconsole.h asciiControlCode.h \
+h_files = ansicolorconsole.h asciiControlCode.h assist_cmsis.h \
           HostCommunication.h HostCommunicationCommand.h HostCommunicationCommandCode.h HostCommunicationErrorCode.h \
           HostCommunicationUtils.h PublicCache.h
 c_files = main.c HostCommunication.c HostCommunicationHooks.c HostCommunicationUtils.c PublicCache.c
