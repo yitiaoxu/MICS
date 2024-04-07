@@ -20,6 +20,7 @@
 #define HC_CMD_AskLastWriteResult		0x28	// 询问上次写入是否出错
 #define HC_CMD_AskFlashStatus			0x29	// 询问Flash是否忙
 #define HC_CMD_WriteFlashAtAddr			0x2a	// 在指定地址写入数据
-#define HC_CMD_EraseFullChip			0x2F	// 全片擦除
+#define HC_CMD_AskFlashDeviceID			0x2e	// 询问Flash型号ID
+#define HC_CMD_EraseFullChip			0x2f	// 全片擦除
 
 #endif // __HOSTCOMMUNICATIONCOMMANDCODE_H
