@@ -12,6 +12,7 @@
                 "HostCommunication.c",
                 "HostCommunicationUtils.c",
                 "HostCommunicationHooks.c",
+                "PublicCache.c",
                 "-o",
                 // "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "${fileDirname}\\main.exe",
