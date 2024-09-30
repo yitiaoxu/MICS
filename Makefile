@@ -11,13 +11,24 @@ default: main.exe dump
 main.exe: $(h_files) $(c_files)
 	gcc -std=c99 $(c_args) $(c_files) -o $@
 
+%.exe.dh: %.exe
+	objdump --all-headers $^ > $@
+
+%.exe.dump: %.exe
+	objdump --disassemble-all $^ > $@
+
 .PHONY: dump
-dump: main.exe
-	objdump -x main.exe > main.dump.hh
-	objdump -D main.exe > main.dump
+dump: main.exe.dh main.exe.dump
+#	objdump -x main.exe > main.dump.hh
+#	objdump -D main.exe > main.dump
 #	objdump -S main.exe > main.S
 
 
 .PHONY: run
 run: main.exe
 	./$<
+
+
+.PHONY: clean
+clean:
+	@rm -vrf version.h *.o *.d *.exe* *.pdb *.ilk **/*.o **/*.d **/*.exe* **/*.pdb **/*.ilk
