@@ -1,12 +1,15 @@
 #include "HostCommunication.h"
-#include "assist_cmsis.h"
+
+#ifdef __ARM_ARCH
+    #include "main.h"
+#else
+    #include "assist_cmsis.h"
+#endif
 
 #ifdef __HC_DEBUG
-#include <stdio.h>
-#include "ansicolorconsole.h"
+    #include <stdio.h>
+    #include "ansicolorconsole.h"
 #endif
-// #include <stdio.h>
-// #include <assert.h>
 
 #include "asciiControlCode.h"
 #include "HostCommunicationCommand.h"
@@ -14,7 +17,7 @@
 #include "HostCommunicationErrorCode.h"
 
 
-// #define FUNCTION_ENTRY_INFO(_func_func)	// 忽略所有FUNCTION_ENTRY_INFO
+// #define FUNCTION_ENTRY_INFO(_func)	// 忽略所有FUNCTION_ENTRY_INFO
 #ifndef FUNCTION_ENTRY_INFO
 	#if (defined(__stdio_h) || defined(_STDIO_H) || defined(_INC_STDIO))
 		#ifdef __ANSICOLORCONSOLE_H
@@ -272,6 +275,9 @@ bool HC_GotCharHandle(uint8_t ch)
 		case HC_CMD_Specify64kBlock:
 			_hc_nbytes_args_command_at_function_status(HC_FUNCTION_STATUS_OPERATE_STORAGE, 2);
 			break;
+		case HC_CMD_Specify4kSector:
+			_hc_nbytes_args_command_at_function_status(HC_FUNCTION_STATUS_OPERATE_STORAGE, 2);
+			break;
 		// HC_FUNCTION_STATUS_OPERATE_STORAGE模式下的六字节参数命令
 		case HC_CMD_WriteFlashAtAddr:
 			_hc_nbytes_args_command_at_function_status(HC_FUNCTION_STATUS_OPERATE_STORAGE, 6);
@@ -279,8 +285,10 @@ bool HC_GotCharHandle(uint8_t ch)
 		// HC_FUNCTION_STATUS_OPERATE_STORAGE模式下的零字节参数命令
 		case HC_CMD_Output64kBlock:
 		case HC_CMD_Erase64kBlock:
+		case HC_CMD_Erase4kSector:
 		case HC_CMD_EraseFullChip:
 		case HC_CMD_AskLastWriteResult:
+		case HC_CMD_AskFlashDeviceID:
 		case HC_CMD_AskFlashStatus:
 			_hc_no_arg_command_at_function_status(HC_FUNCTION_STATUS_OPERATE_STORAGE);
 			break;
@@ -371,7 +379,7 @@ void HC_CommandFinishHandle()
 // // 命令执行中出现错误后设置状态以便通知上位机
 // void HC_ErrorOccuredHandle(uint16_t handshake_errcode)
 // {
-// 	_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, errorcode);
+// 	_hc_handshake_error(HC_HANDSHAKE_STATUS_ON_ERROR, handshake_errcode);
 // 	return;
 // }
 

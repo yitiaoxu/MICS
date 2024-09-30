@@ -6,8 +6,10 @@
 
 #include "HostCommunication.h"
 #include "HostCommunicationCommand.h"
-#include "HostCommunicationCommandCode.h"
 #include "HostCommunicationUtils.h"
+
+// NOTE: 本文件仅供说明，移植后根据目标平台需求修改
+
 
 void HC_SendACKHook(uint16_t handshake_errcode)
 {
@@ -36,29 +38,58 @@ void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
 	int datalength = 0;
 	switch (cmdcode)
 	{
-	// case HC_CMD_Specify64kBlock:
-	// 	break;
-	case HC_CMD_WriteFlashAtAddr:
-	{
-		const HC_CMD_WriteFlashAtAddr_Args_t *const p_cmd = (const HC_CMD_WriteFlashAtAddr_Args_t *)(p_hc_status->cmdbuff);
-		datalength = p_cmd->length_m1 + 1 + 2;
-		printf("\t" ANSI_COLOR_FG_GREEN "Args: " ANSI_COLOR_RESET "[%#x, %d]", p_cmd->addr, p_cmd->length_m1);
-		break;
-	}
-	default:
-	{
-		break;
-	}
+		case HC_CMD_NOP:
+		case HC_CMD_INVALID0:
+		case HC_CMD_INVALID1:
+		case HC_CMD_StartSample:
+		case HC_CMD_StopSample:
+		case HC_CMD_SwitchOperateStorageMode:
+		{
+			break;
+		}
+		case HC_CMD_Specify64kBlock:
+		{
+			const HC_Cmd_Args_Specify64kBlock_t *const p_cmd = (HC_Cmd_Args_Specify64kBlock_t *)p_hc_status->cmdbuff;
+			printf("\t" ANSI_COLOR_FG_GREEN "Command: %x " ANSI_COLOR_RESET "Sector No.: %#x\r\n", p_cmd->cmd, p_cmd->blockno);
+			break;
+		}
+		case HC_CMD_Specify4kSector:
+		{
+			const HC_Cmd_Args_Specify4kSector_t *const p_cmd = (HC_Cmd_Args_Specify4kSector_t *)p_hc_status->cmdbuff;
+			printf("\t" ANSI_COLOR_FG_GREEN "Command: %x " ANSI_COLOR_RESET "Sector No.: %#x\r\n", p_cmd->cmd, p_cmd->sectorno);
+			break;
+		}
+		case HC_CMD_WriteFlashAtAddr:
+		{
+			const HC_CMD_WriteFlashAtAddr_Args_t *const p_cmd = (HC_CMD_WriteFlashAtAddr_Args_t *)p_hc_status->cmdbuff;
+			datalength = p_cmd->length_m1 + 1;
+			printf("\t" ANSI_COLOR_FG_GREEN "Command: %x " ANSI_COLOR_RESET "Addr: %#x, Length: %d\r\n", p_cmd->cmd, p_cmd->addr, datalength);
+			break;
+		}
+		case HC_CMD_AskLastWriteResult:
+		case HC_CMD_AskFlashStatus:
+		case HC_CMD_AskFlashDeviceID:
+		case HC_CMD_Output64kBlock:
+		case HC_CMD_Erase64kBlock:
+		case HC_CMD_Erase4kSector:
+		case HC_CMD_EraseFullChip:
+		{
+			break;
+		}
+		default:
+		{
+			break;
+		}
 	}
 	if (datalength)
 	{
 		printf("\t" ANSI_COLOR_FG_GREEN "Data: " ANSI_COLOR_RESET "[");
-		print_array_by_byte(p_hc_status->data_buff_head, datalength);
+		print_array_by_byte(p_hc_status->data_buff_head, datalength + 2);
 		printf("]");
 	}
 	printf("\r\n");
 
-	HC_CommandFinishHandle();
+	HC_CommandFinishHandle();	// NOTE: 命令执行完后才调用
 	return;
 }
 
