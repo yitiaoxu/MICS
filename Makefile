@@ -9,7 +9,7 @@ c_files = main.c HostCommunication.c HostCommunicationHooks.c HostCommunicationU
 default: main.exe dump
 
 main.exe: $(h_files) $(c_files)
-	gcc -std=c99 $(c_args) $(c_files) -o $@
+	gcc -std=c11 $(c_args) $(c_files) -o $@
 
 %.exe.dh: %.exe
 	objdump --all-headers $^ > $@

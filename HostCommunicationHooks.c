@@ -1,6 +1,12 @@
 
-#include <stdio.h>
 #include <time.h>
+#include <stdio.h>
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)) || (defined(__cplusplus) && (__cplusplus >= 201103L))
+	#include <assert.h>
+#else
+	#define static_assert(expr, msg)
+#endif
 
 #include "ansicolorconsole.h"
 
@@ -49,18 +55,21 @@ void HC_ExecuteHook(const HostCommunicationStatus_t *const p_hc_status)
 		}
 		case HC_CMD_Specify64kBlock:
 		{
+			static_assert(sizeof(HC_Cmd_Args_Specify64kBlock_t) <= sizeof(p_hc_status->cmdbuff), "'HC_Cmd_Args_Specify64kBlock_t' is too large");
 			const HC_Cmd_Args_Specify64kBlock_t *const p_cmd = (HC_Cmd_Args_Specify64kBlock_t *)p_hc_status->cmdbuff;
 			printf("\t" ANSI_COLOR_FG_GREEN "Command: %x " ANSI_COLOR_RESET "Sector No.: %#x\r\n", p_cmd->cmd, p_cmd->blockno);
 			break;
 		}
 		case HC_CMD_Specify4kSector:
 		{
+			static_assert(sizeof(HC_Cmd_Args_Specify4kSector_t) <= sizeof(p_hc_status->cmdbuff), "'HC_Cmd_Args_Specify4kSector_t' is too large");
 			const HC_Cmd_Args_Specify4kSector_t *const p_cmd = (HC_Cmd_Args_Specify4kSector_t *)p_hc_status->cmdbuff;
 			printf("\t" ANSI_COLOR_FG_GREEN "Command: %x " ANSI_COLOR_RESET "Sector No.: %#x\r\n", p_cmd->cmd, p_cmd->sectorno);
 			break;
 		}
 		case HC_CMD_WriteFlashAtAddr:
 		{
+			static_assert(sizeof(HC_CMD_WriteFlashAtAddr_Args_t) <= sizeof(p_hc_status->cmdbuff), "'HC_CMD_WriteFlashAtAddr_Args_t' is too large");
 			const HC_CMD_WriteFlashAtAddr_Args_t *const p_cmd = (HC_CMD_WriteFlashAtAddr_Args_t *)p_hc_status->cmdbuff;
 			datalength = p_cmd->length_m1 + 1;
 			printf("\t" ANSI_COLOR_FG_GREEN "Command: %x " ANSI_COLOR_RESET "Addr: %#x, Length: %d\r\n", p_cmd->cmd, p_cmd->addr, datalength);
