@@ -22,5 +22,6 @@
 #define HC_CMD_WriteFlashAtAddr			0x2a	// 在指定地址写入数据
 #define HC_CMD_AskFlashDeviceID			0x2e	// 询问Flash型号ID
 #define HC_CMD_EraseFullChip			0x2f	// 全片擦除
+#define HC_CMD_SetRealTimeClock			0x31	// 设置RTC时间
 
 #endif // __HOSTCOMMUNICATIONCOMMANDCODE_H
