@@ -15,7 +15,7 @@ extern "C" {
 #define HC_DATABUFF_SIZE		PUBLIC_CACHE_SIZE	// 数据缓存空间
 
 #define HC_STATUS_RESET_BY_CAN_NUM			8		// 状态机复位所需接收到的CAN的数目
-#define HC_STATUS_RESET_BY_IDLE				1000	// 状态机复位所需空闲时间
+#define HC_STATUS_RESET_BY_IDLE				1000	// 状态机复位所需空闲时间（单位：ms）
 
 // 握手状态机
 #define HC_HANDSHAKE_STATUS_IDLE			0		// 归位

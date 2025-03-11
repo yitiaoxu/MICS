@@ -113,7 +113,7 @@ bool HC_TimeoutHook(uint32_t tic, uint32_t toc)
 	{
 		return true;
 	}
-	else if ((toc - tic) > CLOCKS_PER_SEC * 10)
+	else if ((toc - tic) > HC_STATUS_RESET_BY_IDLE)
 	{
 		return true;
 	}
